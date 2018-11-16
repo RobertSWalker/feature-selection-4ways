@@ -1,6 +1,7 @@
 library(tidyverse)
 library(MuMIn)
 library(caret)
+library(BayesVarSel)
 
 #check data
 mtcars %>% tidyr::gather(variable, value) %>% 
@@ -52,6 +53,10 @@ system.time(
   })
 unlist(modelsm) # these are rmse for all the top models
 get.models(combinations, subset = which.min(unlist(modelsm)))[[1]]$call$formula # this is best model acccording to loo cross-validation
+
+#find best model according to Bayesian variable selection
+bvs <- Bvs(formula = "mpg ~ .", data = mtcars) #can use n.keep, pBvs for parallel, GibbsBvs for p>25
+bvs
 
 # run recursive feature extraction in caret
 control <- rfeControl(method="LOOCV")
