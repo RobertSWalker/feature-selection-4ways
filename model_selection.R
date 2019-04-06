@@ -3,12 +3,12 @@ library(MuMIn)
 library(caret)
 library(BayesVarSel)
 
-#check data
+# check data
 mtcars %>% tidyr::gather(variable, value) %>% 
   ggplot(aes(x = value)) + geom_histogram(bins = 10) + 
   facet_wrap(~variable, scales = 'free_x')
 
-# Function to center x variables to make intercepts interpretable
+# function to center x variables to make intercepts interpretable
 center_colmeans <- function(x) { xcenter = colMeans(x, na.rm=TRUE)
                                  x - rep(xcenter, rep.int(nrow(x), ncol(x)))}
 varsToCenter = c("disp","hp","drat","wt","qsec")
@@ -17,6 +17,13 @@ mtcars[varsToCenter] = center_colmeans(mtcars[varsToCenter])
 # convert certain columns to factors
 cols <- c("cyl", "vs", "am", "gear", "carb")
 mtcars <- mtcars %>% mutate_at(cols, funs(factor(.))) # or ordered
+
+# look at correlations
+library(corrplot)
+nums <- unlist(lapply(mtcars, is.numeric)) 
+dfnums <- mtcars[,nums]
+corrplot(cor(dfnums, use = "pairwise.complete.obs"), type = "upper", diag = FALSE,
+         tl.col = "black", tl.srt = 45)
 
 # check normality
 mtcars %>% ggplot(aes(x = mpg)) + geom_density(adjust = .6)
